@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AgentShift Windows installer. Built with wixl (msitools) by packaging/build.sh. -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="AgentShift" Language="1033" Version="$(var.Version)" Manufacturer="stark23x"
+           UpgradeCode="7C1E5C52-8E0B-4E5B-9C3B-2F6D7A1B9E41">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine"
+             Description="AgentShift $(var.Version)" Comments="Compare TV episode order between TVDB and TMDB" />
+    <Media Id="1" Cabinet="agentshift.cab" EmbedCab="yes" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of AgentShift is already installed." />
+
+    <Icon Id="AgentShiftIcon" SourceFile="$(var.Src)/agentshift.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AgentShiftIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/stark23x/AgentShift" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLDIR" Name="AgentShift">
+          <Directory Id="LicensesDir" Name="licenses" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" />
+    </Directory>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="MainExe" Guid="3F1B8A44-2C7D-4B6A-8E21-6A0C9D5E7F10" Win64="yes">
+        <File Id="AgentShiftExe" Name="AgentShift.exe" Source="$(var.Src)/AgentShift.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="AgentShift"
+                    Description="Compare TV episode order between TVDB and TMDB" WorkingDirectory="INSTALLDIR"
+                    Icon="AgentShiftIcon" Advertise="yes" />
+        </File>
+      </Component>
+      <Component Id="CliExe" Guid="5A2E7C91-0B3D-4F8E-A6C2-1D9B4E7F3A20" Win64="yes">
+        <File Id="CliExeFile" Name="agentshift-cli.exe" Source="$(var.Src)/agentshift-cli.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Docs" Guid="8C4D2B17-6E9A-4A3F-B5D8-2E1F7C9A6B30" Win64="yes">
+        <File Id="LicenseFile" Name="LICENSE.txt" Source="$(var.Src)/LICENSE.txt" KeyPath="yes" />
+        <File Id="NoticesFile" Name="THIRD-PARTY-NOTICES.txt" Source="$(var.Src)/THIRD-PARTY-NOTICES.txt" />
+        <File Id="ReadmeFile" Name="README.md" Source="$(var.Src)/README.md" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="LicensesDir">
+      <Component Id="LicenseFiles" Guid="9D5E3C28-7FAB-4B40-C6E9-3F2A8DAB7C40" Win64="yes">
+        <File Id="LicAngle" Name="ANGLE-LICENSE.txt" Source="$(var.Src)/licenses/ANGLE-LICENSE.txt" KeyPath="yes" />
+        <File Id="LicToolkit" Name="CommunityToolkit-ThirdPartyNotices.txt" Source="$(var.Src)/licenses/CommunityToolkit-ThirdPartyNotices.txt" />
+        <File Id="LicInter" Name="Inter-OFL-1.1.txt" Source="$(var.Src)/licenses/Inter-OFL-1.1.txt" />
+        <File Id="LicSkia" Name="SkiaSharp-THIRD-PARTY-NOTICES.txt" Source="$(var.Src)/licenses/SkiaSharp-THIRD-PARTY-NOTICES.txt" />
+        <File Id="LicDotnet" Name="dotnet-LICENSE.txt" Source="$(var.Src)/licenses/dotnet-LICENSE.txt" />
+        <File Id="LicDotnetTpn" Name="dotnet-ThirdPartyNotices.txt" Source="$(var.Src)/licenses/dotnet-ThirdPartyNotices.txt" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Complete" Title="AgentShift" Level="1">
+      <ComponentRef Id="MainExe" />
+      <ComponentRef Id="CliExe" />
+      <ComponentRef Id="Docs" />
+      <ComponentRef Id="LicenseFiles" />
+    </Feature>
+  </Product>
+</Wix>

@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AgentShift.App.Views.MainWindow"
+        Title="AgentShift"
+        Icon="/Assets/agentshift.ico"
+        Width="1320" Height="860" MinWidth="960" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+  <DockPanel Margin="14">
+
+    <!-- Server picker and app buttons -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,260,Auto,*,Auto,Auto" Margin="0,0,0,10">
+      <Image Source="/Assets/agentshift.png" Width="30" Height="30" Margin="0,0,10,0" VerticalAlignment="Center" />
+      <TextBlock Grid.Column="1" Text="Server" VerticalAlignment="Center" Margin="0,0,8,0" />
+      <ComboBox Grid.Column="2" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}"
+                HorizontalAlignment="Stretch" PlaceholderText="Add a server in Settings">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="{Binding Name}" />
+              <TextBlock Classes="muted" Text="{Binding Type}" />
+            </StackPanel>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <Button Grid.Column="3" Content="Load libraries" Command="{Binding LoadLibrariesCommand}" Margin="8,0,0,0" />
+      <Button Grid.Column="5" Content="Settings" Click="OnSettingsClick" Margin="8,0,0,0" />
+      <Button Grid.Column="6" Content="About" Click="OnAboutClick" Margin="8,0,0,0" />
+    </Grid>
+
+    <!-- Libraries and scan -->
+    <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+        <TextBlock Text="TV libraries" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,14,0" />
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Libraries}" VerticalAlignment="Center">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Label}" Margin="0,0,18,0" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Grid.Column="2" Classes="accent" Content="Scan" MinWidth="90" HorizontalContentAlignment="Center"
+                Command="{Binding ScanCommand}" Margin="8,0,0,0" />
+        <Button Grid.Column="3" Content="Cancel" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" Margin="8,0,0,0" />
+      </Grid>
+    </Border>
+
+    <!-- Status bar -->
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,280" Margin="0,10,0,0">
+      <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+      <ProgressBar Grid.Column="1" IsVisible="{Binding IsBusy}" Minimum="0" Maximum="{Binding ProgressMax}"
+                   Value="{Binding ProgressValue}" IsIndeterminate="{Binding ProgressIndeterminate}" />
+    </Grid>
+
+    <!-- Results -->
+    <Grid RowDefinitions="Auto,*,6,1.1*">
+      <Grid ColumnDefinitions="260,Auto,*,Auto" Margin="0,0,0,8">
+        <TextBox Watermark="Search shows" Text="{Binding SearchText}" />
+        <CheckBox Grid.Column="1" Content="Only shows that would change" IsChecked="{Binding OnlyChanges}" Margin="12,0,0,0" />
+        <TextBlock Grid.Column="2" Text="{Binding SummaryText}" Classes="muted" VerticalAlignment="Center" Margin="12,0"
+                   TextTrimming="CharacterEllipsis" />
+        <Button Grid.Column="3" Content="Export CSV…" Click="OnExportClick" IsEnabled="{Binding HasResults}" />
+      </Grid>
+
+      <DataGrid Grid.Row="1" x:Name="ShowsGrid" ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult}">
+        <DataGrid.Columns>
+          <DataGridTemplateColumn Header="" Width="28" SortMemberPath="Severity">
+            <DataGridTemplateColumn.CellTemplate>
+              <DataTemplate>
+                <Ellipse Width="10" Height="10" Fill="{Binding Severity, Converter={StaticResource SeverityBrush}}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTextColumn Header="Show" Binding="{Binding Title}" Width="2*" />
+          <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="130" SortMemberPath="Severity" />
+          <DataGridTextColumn Header="Episodes" Binding="{Binding EpisodeCount}" Width="100" />
+          <DataGridTextColumn Header="Changed" Binding="{Binding ChangedCount}" Width="100" />
+          <DataGridTextColumn Header="What would change" Binding="{Binding Summary}" Width="4*" />
+          <DataGridTextColumn Header="Current order" Binding="{Binding Ordering}" Width="1.5*" />
+          <DataGridTextColumn Header="Library" Binding="{Binding Library}" Width="*" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <GridSplitter Grid.Row="2" ResizeDirection="Rows" Background="Transparent" />
+
+      <Border Grid.Row="3" Classes="card" IsVisible="{Binding HasSelection}">
+        <Grid RowDefinitions="Auto,Auto,Auto,*">
+          <Grid ColumnDefinitions="*,Auto,Auto">
+            <TextBlock Classes="h2" Text="{Binding SelectedResult.Title}" VerticalAlignment="Center" />
+            <CheckBox Grid.Column="1" Content="Hide unchanged episodes" IsChecked="{Binding OnlyChangedEpisodes}" Margin="12,0" />
+            <Button Grid.Column="2" Content="Open on TMDB" Click="OnOpenTmdbClick"
+                    IsVisible="{Binding SelectedResult.TmdbUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </Grid>
+          <TextBlock Grid.Row="1" Text="{Binding SelectedResult.Summary}" TextWrapping="Wrap" Margin="0,4,0,0" />
+          <TextBlock Grid.Row="2" Text="{Binding SelectedResult.NotesText}" TextWrapping="Wrap" Classes="muted" Margin="0,4,0,8"
+                     IsVisible="{Binding SelectedResult.NotesText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <DataGrid Grid.Row="3" ItemsSource="{Binding SelectedEpisodes}">
+            <DataGrid.Columns>
+              <DataGridTemplateColumn Header="" Width="28" SortMemberPath="Change">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <Ellipse Width="9" Height="9" Fill="{Binding Change, Converter={StaticResource ChangeBrush}}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn Header="Now" Binding="{Binding CurrentCode}" Width="80" />
+              <DataGridTextColumn Header="Title now" Binding="{Binding CurrentTitle}" Width="2*" />
+              <DataGridTextColumn Header="TMDB at this number" Binding="{Binding SlotTitle}" Width="2*" MinWidth="170" />
+              <DataGridTextColumn Header="On TMDB as" Binding="{Binding NewCode}" Width="150" />
+              <DataGridTextColumn Header="TMDB title" Binding="{Binding NewTitle}" Width="2*" />
+              <DataGridTextColumn Header="Change" Binding="{Binding ChangeText}" Width="160" />
+              <DataGridTextColumn Header="Matched by" Binding="{Binding MatchMethod}" Width="130" />
+              <DataGridTextColumn Header="Details" Binding="{Binding Note}" Width="3*" />
+              <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="2*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>

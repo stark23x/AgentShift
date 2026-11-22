@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>agentshift-cli</AssemblyName>
+    <RootNamespace>AgentShift.Cli</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AgentShift.Core\AgentShift.Core.csproj" />
+  </ItemGroup>
+</Project>

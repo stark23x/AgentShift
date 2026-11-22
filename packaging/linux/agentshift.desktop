@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AgentShift
+Comment=See what would change if your TV library switched from TVDB to TMDB
+Exec=AgentShift
+Icon=agentshift
+Categories=AudioVideo;Video;Utility;
+Terminal=false

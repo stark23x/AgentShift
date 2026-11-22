@@ -1,0 +1,161 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:AgentShift.App.Views"
+        x:Class="AgentShift.App.Views.SettingsWindow"
+        Title="AgentShift Settings"
+        Icon="/Assets/agentshift.ico"
+        Width="980" Height="760" MinWidth="820" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+      <Button Content="Cancel" IsCancel="True" Click="OnCancelClick" MinWidth="90" HorizontalContentAlignment="Center" />
+      <Button Content="Save" Classes="accent" IsDefault="True" Click="OnSaveClick" MinWidth="90" HorizontalContentAlignment="Center" />
+    </StackPanel>
+
+    <TabControl>
+      <!-- Servers -->
+      <TabItem Header="Servers">
+        <Grid ColumnDefinitions="220,16,*" Margin="0,10,0,0">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+              <Button Content="Add server" Command="{Binding AddProfileCommand}" />
+              <Button Content="Remove" Command="{Binding RemoveProfileCommand}" IsEnabled="{Binding HasProfile}" />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                    <TextBlock Classes="muted" Text="{Binding Type}" FontSize="12" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </DockPanel>
+
+          <TextBlock Grid.Column="2" Text="Click &quot;Add server&quot; to set up your Plex, Emby or Jellyfin server."
+                     IsVisible="{Binding !HasProfile}" Classes="muted" VerticalAlignment="Top" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+          <ScrollViewer Grid.Column="2" IsVisible="{Binding HasProfile}">
+            <StackPanel DataContext="{Binding SelectedProfile}" Spacing="10" Margin="0,0,12,0">
+              <Grid Classes="form" ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid.Styles>
+                  <Style Selector="TextBlock.label">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Margin" Value="0,0,12,0" />
+                  </Style>
+                  <Style Selector="Grid.form > :is(Control)">
+                    <Setter Property="Margin" Value="0,4" />
+                  </Style>
+                </Grid.Styles>
+
+                <TextBlock Classes="label" Text="Name" />
+                <TextBox Grid.Column="1" Text="{Binding Name}" />
+
+                <TextBlock Grid.Row="1" Classes="label" Text="Server type" />
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ServerTypes}" SelectedItem="{Binding Type}" MinWidth="160" />
+
+                <TextBlock Grid.Row="2" Classes="label" Text="Address" />
+                <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="Auto,*,Auto,170">
+                  <ComboBox SelectedIndex="{Binding UseHttps, Converter={x:Static local:BoolToIndexConverter.Instance}}" MinWidth="96">
+                    <ComboBoxItem>http</ComboBoxItem>
+                    <ComboBoxItem>https</ComboBoxItem>
+                  </ComboBox>
+                  <TextBox Grid.Column="1" Text="{Binding Host}" Watermark="e.g. 192.168.1.201" Margin="8,0" />
+                  <TextBlock Grid.Column="2" Text="Port" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <NumericUpDown Grid.Column="3" Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0" Increment="1" />
+                </Grid>
+
+                <TextBlock Grid.Row="3" Classes="label" Text="URL path (optional)" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BasePath}" Watermark="Only if your server sits under a path, e.g. /jellyfin" />
+
+                <TextBlock Grid.Row="4" Classes="label" Text="{Binding SecretLabel}" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Secret}" PasswordChar="●" RevealPassword="{Binding #Reveal.IsChecked}" />
+
+                <CheckBox Grid.Row="5" Grid.Column="1" x:Name="Reveal" Content="Show" />
+              </Grid>
+
+              <TextBlock Text="{Binding SecretHelp}" TextWrapping="Wrap" Classes="muted" />
+
+              <!-- Plex sign-in -->
+              <Border Classes="card" IsVisible="{Binding IsPlex}">
+                <StackPanel Spacing="8">
+                  <TextBlock Classes="h2" Text="Sign in with Plex" />
+                  <TextBlock TextWrapping="Wrap"
+                             Text="Opens plex.tv in your browser. Sign in there and AgentShift receives a token. It never sees your Plex password. If the address above is empty, it's filled in from your account." />
+                  <Button Content="Sign in with Plex" Command="{Binding PlexSignInCommand}" IsEnabled="{Binding !IsWorking}" />
+                </StackPanel>
+              </Border>
+
+              <!-- Emby / Jellyfin sign-in -->
+              <Border Classes="card" IsVisible="{Binding IsEmbyFamily}">
+                <StackPanel Spacing="8">
+                  <TextBlock Classes="h2" Text="Or sign in with a username" />
+                  <TextBlock TextWrapping="Wrap" Text="Gets an access token for the key box above. The password is only used once and isn't saved." />
+                  <Grid ColumnDefinitions="*,8,*,8,Auto">
+                    <TextBox Text="{Binding SignInUser}" Watermark="Username" />
+                    <TextBox Grid.Column="2" Text="{Binding SignInPassword}" Watermark="Password" PasswordChar="●" />
+                    <Button Grid.Column="4" Content="Sign in" Command="{Binding EmbySignInCommand}" IsEnabled="{Binding !IsWorking}" />
+                  </Grid>
+                  <TextBlock Classes="muted" IsVisible="{Binding UserName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <Run Text="Signed in as" /> <Run Text="{Binding UserName}" />
+                  </TextBlock>
+                </StackPanel>
+              </Border>
+
+              <CheckBox Content="Accept self-signed HTTPS certificates (only for servers on your own network)"
+                        IsChecked="{Binding AllowInvalidCertificate}" />
+
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Content="Test connection" Command="{Binding TestConnectionCommand}" IsEnabled="{Binding !IsWorking}" />
+                <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsWorking}" VerticalAlignment="Center" />
+              </StackPanel>
+              <SelectableTextBlock Text="{Binding TestResult}" TextWrapping="Wrap" />
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </TabItem>
+
+      <!-- TMDB -->
+      <TabItem Header="TMDB">
+        <StackPanel Spacing="10" Margin="0,10,0,0" MaxWidth="720" HorizontalAlignment="Left">
+          <TextBlock TextWrapping="Wrap"
+                     Text="AgentShift looks up each show's episode order on TMDB. That needs a free TMDB API key. Sign up at themoviedb.org, then open Settings → API and copy either the API Key or the API Read Access Token." />
+          <Button Content="Get a TMDB API key" Click="OnTmdbSignupClick" />
+          <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto">
+            <TextBlock Text="API key or token" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding TmdbKey}" PasswordChar="●" RevealPassword="{Binding #RevealTmdb.IsChecked}" />
+            <CheckBox Grid.Row="1" Grid.Column="1" x:Name="RevealTmdb" Content="Show" Margin="0,4" />
+            <TextBlock Grid.Row="2" Text="Language" VerticalAlignment="Center" />
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TmdbLanguage}" Watermark="en-US" Width="140" HorizontalAlignment="Left" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Content="Test key" Command="{Binding TestTmdbCommand}" />
+            <TextBlock Text="{Binding TmdbTestResult}" VerticalAlignment="Center" />
+          </StackPanel>
+        </StackPanel>
+      </TabItem>
+
+      <!-- Scan options -->
+      <TabItem Header="Scan">
+        <StackPanel Spacing="14" Margin="0,10,0,0" MaxWidth="720" HorizontalAlignment="Left">
+          <StackPanel>
+            <CheckBox Content="Use TVDB links on TMDB episodes when other matching isn't sure" IsChecked="{Binding UseEpisodeLinks}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Margin="28,0,0,0"
+                       Text="More accurate, but asks TMDB for every episode of those shows, so scans take longer." />
+          </StackPanel>
+          <StackPanel>
+            <CheckBox Content="Look for a TMDB episode group that keeps your current numbering" IsChecked="{Binding CheckEpisodeGroups}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Margin="28,0,0,0"
+                       Text="Only for shows that would change. Some servers let you pick an episode group per show." />
+          </StackPanel>
+          <StackPanel>
+            <CheckBox Content="Also compare shows that already follow TMDB order" IsChecked="{Binding CompareShowsAlreadyOnTmdb}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Margin="28,0,0,0"
+                       Text="Normally these are skipped, because switching changes nothing for them." />
+          </StackPanel>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

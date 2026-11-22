@@ -1,0 +1,47 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AgentShift.App.Views.AboutWindow"
+        Title="About AgentShift"
+        Icon="/Assets/agentshift.ico"
+        Width="680" Height="720" MinWidth="520" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <Button DockPanel.Dock="Bottom" Content="Close" IsDefault="True" IsCancel="True" Click="OnCloseClick"
+            HorizontalAlignment="Right" MinWidth="90" HorizontalContentAlignment="Center" Margin="0,12,0,0" />
+
+    <StackPanel DockPanel.Dock="Top" Spacing="10">
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <Image Source="/Assets/agentshift.png" Width="64" Height="64" />
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Classes="h1" Text="AgentShift" />
+          <TextBlock x:Name="VersionText" Classes="muted" />
+        </StackPanel>
+      </StackPanel>
+      <TextBlock TextWrapping="Wrap"
+                 Text="See what would change in your Plex, Emby or Jellyfin TV library if it switched from TVDB to TMDB episode order. AgentShift only reads from your server and never changes it." />
+      <StackPanel Spacing="2">
+        <TextBlock Text="Copyright © 2026 stark23x" />
+        <TextBlock TextWrapping="Wrap"
+                   Text="Free software under the GNU General Public License, version 3 or later. You can share and change it under that license. It comes with ABSOLUTELY NO WARRANTY." />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="Source code on GitHub" Click="OnSourceClick" />
+        <Button Content="GPLv3 license" Click="OnLicenseClick" />
+      </StackPanel>
+
+      <Separator Margin="0,4" />
+
+      <!-- TMDB attribution (required by the TMDB API terms) -->
+      <Image Source="/Assets/tmdb-logo.png" Height="18" HorizontalAlignment="Left" />
+      <TextBlock TextWrapping="Wrap" Text="This product uses the TMDB API but is not endorsed or certified by TMDB." />
+      <TextBlock TextWrapping="Wrap" Classes="muted"
+                 Text="AgentShift is not affiliated with or endorsed by Plex, Emby, Jellyfin or TheTVDB. Their names belong to their owners." />
+
+      <Separator Margin="0,4" />
+      <TextBlock Classes="h2" Text="Third-party licenses" />
+    </StackPanel>
+
+    <TextBox x:Name="NoticesBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"
+             FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" FontSize="12" />
+  </DockPanel>
+</Window>
