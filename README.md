@@ -67,7 +67,7 @@ packaging/build.sh linux     # AppImage + tar.gz
 packaging/build.sh macos     # .app zip, plus .dmg when run on a Mac
 ```
 
-Pushing a tag like `v0.1.0` makes the GitHub Actions workflow build every package and attach them to a release.
+Releases are automatic. Raise `<Version>` in `Directory.Build.props` and push to `main`, and GitHub Actions builds every package and publishes them as release `v<version>`. Pushing a tag like `v1.2.3` also works.
 
 Project layout:
 
