@@ -82,6 +82,9 @@ public sealed class AppSettings
     /// <summary>Check TMDB episode groups for one that keeps the current numbering.</summary>
     public bool CheckEpisodeGroups { get; set; } = true;
 
+    /// <summary>"System" (follow the operating system), "Light" or "Dark".</summary>
+    public string Theme { get; set; } = "System";
+
     /// <summary>Stable id this install uses when talking to Plex / Emby / Jellyfin.</summary>
     public string ClientId { get; set; } = Guid.NewGuid().ToString("N");
 

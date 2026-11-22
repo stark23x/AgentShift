@@ -29,6 +29,8 @@ Matching uses, in order: the TMDB and TVDB episode links your server already has
   - **Emby / Jellyfin**: an API key from the dashboard, or sign in with a username and password. The password isn't saved, only the access token.
 - A free **TMDB API key**: create an account at themoviedb.org, then go to Settings → API. Either the API key or the read access token works.
 
+The app follows your system's light or dark mode on Windows, macOS and Linux. You can also pick Light or Dark under Settings → Appearance.
+
 Tokens and keys are stored in Windows Credential Manager, the macOS Keychain, or the Linux keyring (libsecret). Without a keyring on Linux, they go in a file only your user can read.
 
 ## Install

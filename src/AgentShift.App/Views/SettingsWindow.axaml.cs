@@ -46,6 +46,12 @@ public partial class SettingsWindow : Window
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(false);
 
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        _vm.RevertTheme(); // after Save this re-applies the new setting; after Cancel it restores the old one
+    }
+
     private async void OnTmdbSignupClick(object? sender, RoutedEventArgs e) =>
         await Launcher.LaunchUriAsync(new Uri("https://www.themoviedb.org/settings/api"));
 }

@@ -41,7 +41,8 @@
       <TextBlock Classes="h2" Text="Third-party licenses" />
     </StackPanel>
 
-    <TextBox x:Name="NoticesBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"
+    <TextBox x:Name="NoticesBox" IsReadOnly="True" TextWrapping="NoWrap" AcceptsReturn="True"
+             ScrollViewer.HorizontalScrollBarVisibility="Auto"
              FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" FontSize="12" />
   </DockPanel>
 </Window>

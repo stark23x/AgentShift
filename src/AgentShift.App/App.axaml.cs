@@ -11,6 +11,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace AgentShift.App;
 
@@ -20,12 +21,25 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        ApplyTheme(AppServices.Instance.Settings.Theme);
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var vm = new MainWindowViewModel(AppServices.Instance);
             desktop.MainWindow = new MainWindow { DataContext = vm };
         }
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>"System" follows the OS light/dark setting (and updates live when it changes).</summary>
+    public static void ApplyTheme(string? theme)
+    {
+        if (Current is null) return;
+        Current.RequestedThemeVariant = theme switch
+        {
+            "Light" => ThemeVariant.Light,
+            "Dark" => ThemeVariant.Dark,
+            _ => ThemeVariant.Default,
+        };
     }
 }
 

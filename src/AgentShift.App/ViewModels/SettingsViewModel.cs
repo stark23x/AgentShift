@@ -203,7 +203,17 @@ public sealed partial class SettingsViewModel : ObservableObject
         _useEpisodeLinks = s.UseEpisodeLinks;
         _compareShowsAlreadyOnTmdb = s.CompareShowsAlreadyOnTmdb;
         _checkEpisodeGroups = s.CheckEpisodeGroups;
+        _theme = Themes.Contains(s.Theme) ? s.Theme : "System";
     }
+
+    public static IReadOnlyList<string> Themes { get; } = new[] { "System", "Light", "Dark" };
+
+    [ObservableProperty] private string _theme;
+
+    // Preview the theme straight away; Cancel puts the saved one back.
+    partial void OnThemeChanged(string value) => App.ApplyTheme(value);
+
+    public void RevertTheme() => App.ApplyTheme(_services.Settings.Theme);
 
     public ObservableCollection<ProfileViewModel> Profiles { get; } = new();
     public string SecretStoreDescription => $"Tokens and keys are stored in {_services.Secrets.Description}.";
@@ -279,6 +289,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         s.UseEpisodeLinks = UseEpisodeLinks;
         s.CompareShowsAlreadyOnTmdb = CompareShowsAlreadyOnTmdb;
         s.CheckEpisodeGroups = CheckEpisodeGroups;
+        s.Theme = Theme;
 
         foreach (var p in Profiles)
         {
